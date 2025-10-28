@@ -1,5 +1,6 @@
 # 📰 Half Time News - 中文热门新闻聚合平台
 
+什么叫极简？这就叫极简！
 一个现代化的 React 应用，实时聚合展示多个中文平台的热门话题和新闻排行榜。支持快速切换查看不同平台的最新热门内容。
 
 ![React](https://img.shields.io/badge/React-19.1.0-61DAFB?style=flat-square&logo=react)
@@ -158,9 +159,9 @@ Hafl_Time_News/
 
 ## 👤 作者
 
-**Your Name**
+**杰克爱**
 
-- GitHub: [@your-username](https://github.com/your-username)
+- GitHub: [@jacklove0903](https://github.com/jacklove0903)
 
 ## 🙏 致谢
 
