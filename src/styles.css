@@ -24,9 +24,9 @@ body {
 }
 
 .header-content {
-  max-width: 1400px;
+  max-width: 1000px;
   margin: 0 auto;
-  padding: 16px 32px;
+  padding: 16px 40px;
 }
 
 .logo {
@@ -37,9 +37,9 @@ body {
 
 /* 主容器 */
 .main-container {
-  max-width: 1400px;
+  max-width: 1000px;
   margin: 0 auto;
-  padding: 24px 32px;
+  padding: 24px 40px;
 }
 
 .content-wrapper {
@@ -110,8 +110,9 @@ body {
   border: 1px solid #e5e5e5;
 }
 
+
 .content-header {
-  padding: 24px;
+  padding: 16px 24px;
   border-bottom: 1px solid #e5e5e5;
 }
 
@@ -119,7 +120,6 @@ body {
   font-size: 18px;
   font-weight: bold;
   color: #333;
-  margin-bottom: 8px;
 }
 
 .content-subtitle {
@@ -247,7 +247,7 @@ body {
 
 /* 滚动条样式 */
 .main-content {
-  max-height: calc(100vh - 140px);
+  max-height: calc(100vh - 110px);
   overflow-y: auto;
 }
 

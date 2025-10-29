@@ -11,49 +11,136 @@ const WEBSITES = [
   { id: "tieba", name: "百度贴吧" },
 ];
 
-// 生成微博的热门新闻数据（根据图片）
-const generateTrendingNews = (websiteId) => {
-  if (websiteId === "weibo") {
-    return [
-      { id: 1, title: "金赛纶去世", views: 102, isHot: true },
-      { id: 2, title: "你设置付款码隐私保护了吗", views: 75 },
-      { id: 3, title: "60秒看中国智造齐聚一堂", views: 67.3 },
-      { id: 4, title: "公积金三大调整方向持续助力安居", views: 127.3 },
-      { id: 5, title: "K总官宣与女友结婚", views: 132.7 },
-      { id: 6, title: "最新科技突破引发热议", views: 89.2 },
-      { id: 7, title: "娱乐圈新动态引发关注", views: 56.8 },
-      { id: 8, title: "体育赛事精彩瞬间回顾", views: 43.5 },
-      { id: 9, title: "社会热点话题持续发酵", views: 78.9 },
-      { id: 10, title: "生活小技巧分享走红", views: 91.4 },
-      { id: 11, title: "美食探店视频获赞无数", views: 65.2 },
-      { id: 12, title: "旅行攻略引发网友热议", views: 54.7 },
-      { id: 13, title: "职场生存法则分享", views: 112.3 },
-      { id: 14, title: "健康生活方式推荐", views: 88.6 },
-      { id: 15, title: "教育话题深度讨论", views: 73.1 },
-      { id: 16, title: "科技创新成果展示", views: 96.5 },
-      { id: 17, title: "文化传承重要性探讨", views: 59.8 },
-      { id: 18, title: "环保理念实践分享", views: 82.4 },
-    ];
-  }
+// API实例列表
+const API_INSTANCES = [
+  "https://60api.09cdn.xyz",
+  "https://60s.zeabur.app",
+  "https://60s.crystelf.top",
+  "https://cqxx.site",
+  "https://api.yanyua.icu",
+  "https://60s.tmini.net",
+  "https://60s.7se.cn",
+];
+
+// 检测API实例是否可用并返回响应时间
+const checkApiInstance = async (baseUrl) => {
+  const testUrl = `${baseUrl}/v2/weibo`;
+  const timeout = 5000; // 5秒超时
   
-  // 其他网站的默认数据
-  return Array.from({ length: 50 }, (_, i) => ({
-    id: i + 1,
-    title: `${WEBSITES.find(w => w.id === websiteId)?.name}热门话题 ${i + 1}`,
-    views: Math.floor(Math.random() * 200) + 10,
-    isHot: false,
-  }));
+  try {
+    const startTime = performance.now();
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeout);
+    
+    const response = await fetch(testUrl, {
+      method: 'GET',
+      signal: controller.signal,
+    });
+    
+    clearTimeout(timeoutId);
+    
+    if (response.ok) {
+      const data = await response.json();
+      const endTime = performance.now();
+      const responseTime = endTime - startTime;
+      
+      if (data.code === 200 && data.data) {
+        return { available: true, responseTime, url: baseUrl };
+      }
+    }
+    return { available: false, responseTime: Infinity, url: baseUrl };
+  } catch (error) {
+    return { available: false, responseTime: Infinity, url: baseUrl };
+  }
 };
+
+// 检测所有实例并选择最快的
+const findBestApiInstance = async () => {
+  // 检查是否已有存储的实例
+  const storedInstance = localStorage.getItem('bestApiInstance');
+  if (storedInstance) {
+    console.log('使用缓存实例:', storedInstance);
+    return storedInstance;
+  }
+
+  console.log('开始检测API实例...');
+  const results = await Promise.all(
+    API_INSTANCES.map(instance => checkApiInstance(instance))
+  );
+
+  // 找出所有可用的实例
+  const availableInstances = results.filter(r => r.available);
+  
+  if (availableInstances.length === 0) {
+    console.error('没有找到可用的API实例');
+    return API_INSTANCES[0]; // 返回第一个作为备用
+  }
+
+  // 选择响应时间最短的实例
+  const bestInstance = availableInstances.reduce((prev, current) => {
+    return prev.responseTime < current.responseTime ? prev : current;
+  });
+
+  console.log(`选择最佳实例: ${bestInstance.url}，响应时间: ${bestInstance.responseTime.toFixed(2)}ms`);
+  
+  // 存储最佳实例
+  localStorage.setItem('bestApiInstance', bestInstance.url);
+  
+  return bestInstance.url;
+};
+
+// 从API获取微博热搜数据
+const fetchWeiboData = async () => {
+  try {
+    const baseUrl = await findBestApiInstance();
+    const response = await fetch(`${baseUrl}/v2/weibo`);
+    const result = await response.json();
+    
+    if (result.code === 200 && result.data) {
+      // 转换API数据格式为应用所需格式
+      console.log(result.data);
+      return result.data.map((item, index) => ({
+        id: index + 1,
+        title: item.title,
+        link: item.link
+      }));
+    }
+    return [];
+  } catch (error) {
+    console.error('获取微博热搜失败:', error);
+    return [];
+  }
+};
+
 
 // 主应用组件
 const App = () => {
   const [activeWebsite, setActiveWebsite] = useState("weibo");
   const [trendingNews, setTrendingNews] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // 生成其他网站的热门新闻数据
+  const generateTrendingNews = async (websiteId) => {
+    if (websiteId === "weibo") {
+      // 从API获取真实数据
+      setIsLoading(true);
+      const realData = await fetchWeiboData();
+      setIsLoading(false);
+      return realData;
+    }
+    
+    // 其他网站的默认数据
+    setIsLoading(false);
+    return Array.from({ length: 50 }, (_, i) => ({
+      id: i + 1,
+      title: `${WEBSITES.find(w => w.id === websiteId)?.name}热门话题 ${i + 1}`,
+    }));
+  };
 
   useEffect(() => {
-    setTrendingNews([]);
-    const timer = setTimeout(() => {
-      const news = generateTrendingNews(activeWebsite);
+    const loadNews = async () => {
+      const news = await generateTrendingNews(activeWebsite);
+      
       // 如果是微博，扩展到50条
       if (activeWebsite === "weibo") {
         const baseNews = news;
@@ -62,17 +149,15 @@ const App = () => {
           extendedNews.push({
             id: i + 1,
             title: `微博热门话题 ${i + 1}`,
-            views: Math.floor(Math.random() * 150) + 20,
-            isHot: false,
           });
         }
         setTrendingNews(extendedNews);
       } else {
         setTrendingNews(news);
       }
-    }, 200);
+    };
 
-    return () => clearTimeout(timer);
+    loadNews();
   }, [activeWebsite]);
 
   return (
@@ -106,14 +191,11 @@ const App = () => {
             </nav>
           </aside>
 
-          {/* 右侧内容区 */}
           <main className="main-content">
-            {/* 标题区域 */}
             <div className="content-header">
               <h2 className="content-title">
-                {WEBSITES.find(w => w.id === activeWebsite)?.name} 热门
+                {WEBSITES.find(w => w.id === activeWebsite)?.name}
               </h2>
-              <p className="content-subtitle">实时点击率前50</p>
             </div>
 
             {/* 新闻列表 */}
@@ -121,15 +203,10 @@ const App = () => {
               {trendingNews.length > 0 ? (
                 trendingNews.map((item, index) => (
                   <div key={item.id} className="news-item">
-                    {index === 0 && item.isHot ? (
-                      <div className="hot-badge">爆</div>
-                    ) : (
-                      <span className={`news-rank ${index < 3 && !item.isHot ? 'rank-highlight' : ''}`}>
-                        {index + 1}
-                      </span>
-                    )}
+                    <span className={`news-rank ${index < 3 ? 'rank-highlight' : ''}`}>
+                      {index + 1}
+                    </span>
                     <span className="news-title">{item.title}</span>
-                    <span className="news-views">{item.views.toFixed(item.views % 1 === 0 ? 0 : 1)}万</span>
                   </div>
                 ))
               ) : (
@@ -138,7 +215,6 @@ const App = () => {
                     <div key={i} className="loading-item">
                       <div className="loading-rank"></div>
                       <div className="loading-title"></div>
-                      <div className="loading-views"></div>
                     </div>
                   ))}
                 </div>
