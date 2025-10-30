@@ -37,15 +37,16 @@ body {
 
 /* 主容器 */
 .main-container {
-  max-width: 1000px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 24px 40px;
+  padding: 24px 60px;
 }
 
 .content-wrapper {
   display: flex;
   gap: 24px;
 }
+
 
 /* 左侧导航栏 */
 .sidebar {
@@ -108,6 +109,8 @@ body {
   flex: 1;
   background-color: #fff;
   border: 1px solid #e5e5e5;
+  max-height: calc(100vh - 110px);
+  overflow-y: auto;
 }
 
 
@@ -143,6 +146,10 @@ body {
 
 .news-item:hover {
   background-color: #fafafa;
+}
+
+.news-item.selected {
+  background-color: #e6f2ff;
 }
 
 .news-item:last-child {
@@ -214,7 +221,7 @@ body {
 .loading-title,
 .loading-views {
   background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 200% 100%;
+  background-size: 100% 50%;
   animation: loading 1.5s infinite;
   border-radius: 2px;
 }
@@ -246,11 +253,6 @@ body {
 }
 
 /* 滚动条样式 */
-.main-content {
-  max-height: calc(100vh - 110px);
-  overflow-y: auto;
-}
-
 .main-content::-webkit-scrollbar {
   width: 6px;
 }
@@ -279,4 +281,485 @@ body {
 .sidebar::-webkit-scrollbar-thumb {
   background: #d9d9d9;
   border-radius: 3px;
+}
+
+/* Word编辑器弹窗 */
+.word-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: transparent;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.word-editor-modal {
+  background-color: #3c3c3c;
+  border: 1px solid #2d2d2d;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  color: #fff;
+  position: fixed;
+  min-width: 800px;
+  min-height: 600px;
+  resize: none;
+  overflow: hidden;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+}
+
+/* Word编辑器样式 - 整体暗色主题 */
+.word-editor {
+  flex: 1;
+  background-color: #3c3c3c;
+  border: 1px solid #2d2d2d;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  color: #fff;
+}
+
+/* Word标题栏 */
+.word-title-bar {
+  background-color: #2d2d2d;
+  padding: 8px 16px;
+  border-bottom: 1px solid #1e1e1e;
+  font-size: 13px;
+  color: #e0e0e0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.word-title-text {
+  font-weight: normal;
+  flex: 1;
+}
+
+.word-title-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.word-open-btn {
+  background-color: transparent;
+  border: none;
+  color: #e0e0e0;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.word-open-btn:hover {
+  background-color: #0078d4;
+  color: #fff;
+}
+
+.word-close-btn {
+  background-color: transparent;
+  border: none;
+  color: #e0e0e0;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.word-close-btn:hover {
+  background-color: #ff4444;
+  color: #fff;
+}
+
+/* Word菜单栏 */
+.word-menu-bar {
+  display: flex;
+  background-color: #2d2d2d;
+  border-bottom: 1px solid #1e1e1e;
+  padding: 0;
+}
+
+.word-menu-item {
+  padding: 8px 16px;
+  background-color: transparent;
+  border: none;
+  color: #e0e0e0;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.word-menu-item:hover {
+  background-color: #3c3c3c;
+}
+
+.word-menu-item.active {
+  background-color: #0078d4;
+  color: #fff;
+}
+
+/* Word Ribbon功能区 */
+.word-ribbon {
+  background-color: #f3f3f3;
+  padding: 10px 16px;
+  border-bottom: 1px solid #d0d0d0;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.ribbon-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-right: 20px;
+  border-right: 1px solid #d0d0d0;
+}
+
+.ribbon-group:last-child {
+  border-right: none;
+}
+
+.ribbon-group-label {
+  font-size: 11px;
+  color: #666;
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.ribbon-buttons {
+  display: flex;
+  gap: 2px;
+  flex-wrap: wrap;
+}
+
+.ribbon-btn {
+  padding: 6px 10px;
+  background-color: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+  border-radius: 2px;
+  min-width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ribbon-btn:hover {
+  background-color: #e5e5e5;
+  border-color: #c0c0c0;
+}
+
+.ribbon-btn-bold {
+  font-weight: bold;
+}
+
+.ribbon-controls {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.ribbon-select {
+  padding: 2px 6px;
+  border: 1px solid #c0c0c0;
+  background-color: #fff;
+  font-size: 12px;
+  border-radius: 2px;
+}
+
+.ribbon-select-small {
+  padding: 2px 4px;
+  border: 1px solid #c0c0c0;
+  background-color: #fff;
+  font-size: 12px;
+  border-radius: 2px;
+  width: 50px;
+}
+
+.ribbon-btn-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.ribbon-btn-small {
+  padding: 1px 4px;
+  background-color: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-size: 10px;
+  color: #333;
+  border-radius: 1px;
+}
+
+.ribbon-btn-small:hover {
+  background-color: #e5e5e5;
+}
+
+.ribbon-btn-up,
+.ribbon-btn-down {
+  font-size: 8px;
+  margin-left: 2px;
+}
+
+.ribbon-group-styles {
+  flex: 1;
+}
+
+.ribbon-styles {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.style-btn {
+  padding: 4px 10px;
+  background-color: #fff;
+  border: 1px solid #c0c0c0;
+  cursor: pointer;
+  font-size: 11px;
+  color: #333;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+
+.style-btn:hover {
+  background-color: #e5e5e5;
+}
+
+/* 尺子和文档区域 */
+.word-document-wrapper {
+  flex: 1;
+  background-color: #c8c8c8;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.word-rulers {
+  position: relative;
+  flex: 1;
+  overflow: auto;
+  background-color: #c8c8c8;
+  min-height: 0;
+}
+
+.word-ruler-horizontal {
+  height: 20px;
+  background-color: #ececec;
+  border-bottom: 1px solid #c0c0c0;
+  display: flex;
+  align-items: center;
+  padding-left: 40px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.ruler-mark {
+  display: inline-block;
+  width: 48px;
+  text-align: left;
+  font-size: 10px;
+  color: #666;
+  padding-left: 2px;
+}
+
+.word-ruler-vertical {
+  width: 40px;
+  background-color: #ececec;
+  border-right: 1px solid #c0c0c0;
+  position: absolute;
+  left: 0;
+  top: 20px;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  padding-top: 8px;
+  z-index: 10;
+}
+
+.ruler-mark-v {
+  display: block;
+  height: 48px;
+  font-size: 10px;
+  color: #666;
+  text-align: center;
+  padding-top: 2px;
+}
+
+.word-document {
+  margin-left: 40px;
+  margin-top: 20px;
+  background-color: #ffffff;
+  min-height: calc(100% - 20px);
+  position: relative;
+}
+
+.word-content {
+  padding: 56px 72px;
+  min-height: 100%;
+  background-color: #ffffff;
+  font-family: "Microsoft YaHei", "SimSun", "Times New Roman", serif;
+  font-size: 12pt;
+  line-height: 1.6;
+  color: #000;
+  max-width: 816px;
+  margin: 0 auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.word-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #999;
+  font-size: 14px;
+}
+
+.word-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #666;
+}
+
+.word-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.word-content[contentEditable="true"] {
+  outline: none;
+  cursor: text;
+}
+
+.word-content[contentEditable="true"]:focus {
+  background-color: #ffffff;
+  outline: none;
+}
+
+/* Word状态栏 */
+.word-status-bar {
+  background-color: #2d2d2d;
+  border-top: 1px solid #1e1e1e;
+  padding: 4px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: #e0e0e0;
+}
+
+.status-left {
+  display: flex;
+  gap: 16px;
+}
+
+.status-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.status-btn {
+  padding: 2px 8px;
+  background-color: transparent;
+  border: 1px solid #3c3c3c;
+  color: #e0e0e0;
+  font-size: 11px;
+  cursor: pointer;
+  border-radius: 2px;
+}
+
+.status-btn:hover {
+  background-color: #3c3c3c;
+}
+
+.zoom-slider {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #e0e0e0;
+}
+
+.slider-bar {
+  width: 80px;
+  height: 4px;
+  background-color: #1e1e1e;
+  border-radius: 2px;
+  position: relative;
+}
+
+.slider-bar::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -4px;
+  width: 12px;
+  height: 12px;
+  background-color: #5c5c5c;
+  border-radius: 50%;
+  transform: translateX(-50%);
+}
+
+/* 调整大小手柄 */
+.resize-handle {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  cursor: nwse-resize;
+  background: linear-gradient(135deg, transparent 0%, transparent 40%, #5c5c5c 40%, #5c5c5c 45%, transparent 45%, transparent 50%, #5c5c5c 50%, #5c5c5c 55%, transparent 55%, transparent 60%, #5c5c5c 60%, #5c5c5c 65%, transparent 65%);
+  background-size: 6px 6px;
+  z-index: 100;
+}
+
+.resize-handle:hover {
+  background: linear-gradient(135deg, transparent 0%, transparent 40%, #7c7c7c 40%, #7c7c7c 45%, transparent 45%, transparent 50%, #7c7c7c 50%, #7c7c7c 55%, transparent 55%, transparent 60%, #7c7c7c 60%, #7c7c7c 65%, transparent 65%);
+  background-size: 6px 6px;
 }
